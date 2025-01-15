@@ -17,20 +17,26 @@ class QuiccApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        textTheme: GoogleFonts.robotoSlabTextTheme(),
-      ),
-      // Define the initial route and set up named routes.
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomePage(),
-        '/homePage': (context) => const HomePageView(),
-        '/historyPage': (context) => const HistoryPage(),
-        '/statisticsPage': (context) => const StatisticsPage(),
-        '/settingsPage': (context) => const SettingsPage(),
-        '/gameSelectionPage': (context) => const GameSelectionPage(),
-      },
-    );
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          textTheme: GoogleFonts.robotoSlabTextTheme(),
+        ),
+        // Define the initial route and set up named routes.
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const HomePage(),
+          '/homePage': (context) => const HomePageView(),
+          '/historyPage': (context) => const HistoryPage(),
+          '/statisticsPage': (context) => const StatisticsPage(),
+          '/settingsPage': (context) => const SettingsPage(),
+          '/gameSelectionPage': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments
+                as Map<String, String>;
+            return GameSelectionPage(
+              decisionTitle: args['decisionTitle']!,
+              decisionDescription: args['decisionDescription']!,
+            );
+          },
+        });
   }
 }

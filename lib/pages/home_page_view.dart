@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import 'game_selection_page.dart';
 
 class HomePageView extends StatelessWidget {
@@ -27,7 +25,7 @@ class HomePageView extends StatelessWidget {
                   color: const Color.fromARGB(123, 0, 0, 0),
                   blurRadius: 8,
                   offset: const Offset(2, 4),
-                )
+                ),
               ],
             ),
             alignment: Alignment.center,
@@ -61,10 +59,8 @@ class HomePageView extends StatelessWidget {
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOut,
-                padding: MediaQuery.of(context)
-                    .viewInsets, // Adjust padding dynamically
+                padding: MediaQuery.of(context).viewInsets,
                 child: SingleChildScrollView(
-                  // Ensures the content is scrollable
                   child: Center(
                     child: Container(
                       width: 300,
@@ -170,15 +166,15 @@ class HomePageView extends StatelessWidget {
 
                                     if (title.isNotEmpty &&
                                         description.isNotEmpty) {
-                                      await _saveDecision(title, description);
-
-                                      if (context.mounted) {
-                                        Navigator.of(context)
-                                            .push(MaterialPageRoute(
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
                                           builder: (context) =>
-                                              const GameSelectionPage(),
-                                        ));
-                                      }
+                                              GameSelectionPage(
+                                            decisionTitle: title,
+                                            decisionDescription: description,
+                                          ),
+                                        ),
+                                      );
                                     }
                                   },
                                   child: Container(
@@ -220,25 +216,5 @@ class HomePageView extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<void> _saveDecision(String title, String description) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Retrieve existing decisions
-    final String? decisionsJson = prefs.getString('decisions');
-    List<Map<String, String>> decisions = [];
-    if (decisionsJson != null) {
-      decisions = List<Map<String, String>>.from(json.decode(decisionsJson));
-    }
-
-    // Add the new decision
-    decisions.add({
-      'title': title,
-      'description': description,
-    });
-
-    // Save back to SharedPreferences
-    await prefs.setString('decisions', json.encode(decisions));
   }
 }

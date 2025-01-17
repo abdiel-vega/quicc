@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quicc/pages/game_selection_page.dart';
+import 'pages/flip_a_coin.dart';
 import 'pages/home_page.dart';
 import 'pages/home_page_view.dart';
 import 'pages/history_page.dart';
@@ -37,6 +38,7 @@ class QuiccApp extends StatelessWidget {
               decisionDescription: args['decisionDescription']!,
             );
           },
+          '/flipACoinPage': (context) => const FlipACoinPage(),
         });
   }
 }

@@ -21,8 +21,6 @@ class _FlipACoinPageState extends State<FlipACoinPage>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration:
-          const Duration(seconds: 3), // Default duration for the animation
     );
   }
 

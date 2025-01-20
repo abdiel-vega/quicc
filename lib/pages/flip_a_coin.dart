@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'home_page.dart';
 
 class FlipACoinPage extends StatefulWidget {
   const FlipACoinPage({super.key});
@@ -15,12 +16,15 @@ class _FlipACoinPageState extends State<FlipACoinPage>
   String? _selectedSide; // Tracks whether the user selects Heads or Tails
   String _result = ""; // Stores the result of the coin flip
   bool _isFlipping = false; // Prevent interaction during animation
+  bool _showIcon = false; // Controls icon visibility
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
+      duration:
+          const Duration(seconds: 3), // Default duration for the animation
     );
   }
 
@@ -58,14 +62,15 @@ class _FlipACoinPageState extends State<FlipACoinPage>
 
     setState(() {
       _isFlipping = true;
+      _showIcon = false; // Hide the icon while flipping
     });
 
     // Start the animation loop and determine the result when done
     _startAnimationLoop(3, () {
       setState(() {
         _isFlipping = false; // Re-enable interaction after animation
+        _determineResult();
       });
-      _determineResult();
     });
   }
 
@@ -75,19 +80,72 @@ class _FlipACoinPageState extends State<FlipACoinPage>
 
     setState(() {
       _result = flipResult;
-      _isFlipping = false; // Re-enable interaction
+      _showIcon = true; // Show the icon after determining the result
     });
 
-    // Show result with SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _selectedSide == _result
-              ? "You Won! It was $_result."
-              : "You Lost! It was $_result.",
-        ),
-      ),
-    );
+    // Show result with popup dialog
+    _showResultDialogWithDelay();
+  }
+
+  void _showResultDialogWithDelay() {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return; // Ensure the widget is still in the widget tree
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Prevent dismissal by tapping outside
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFFFF686B), // Dialog background color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0), // Rounded borders
+            ),
+            title: Text(
+              _selectedSide == _result ? "You Won!" : "You Lost!",
+              style: const TextStyle(
+                color: Colors.white, // Title text color
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Text(
+              "It was $_result.",
+              style: const TextStyle(
+                color: Colors.white, // Content text color
+                fontSize: 18,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const HomePage(),
+                    ),
+                    (route) => false, // Remove all previous routes
+                  );
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white, // Text color of the button
+                  backgroundColor: const Color(0xFFFFA69E), // Background color
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Button border radius
+                  ),
+                ),
+                child: const Text(
+                  "Go Back to Home",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   Widget _buildChoiceButton(String side) {
@@ -194,21 +252,39 @@ class _FlipACoinPageState extends State<FlipACoinPage>
             GestureDetector(
               onTap: _isFlipping ? null : _flipCoin,
               child: Center(
-                // Centers the animation
-                child: SizedBox(
-                  width: 480, // Adjust size as necessary
-                  height: 480,
-                  child: Lottie.asset(
-                    'lib/assets/flip-coin-animation.json',
-                    controller: _controller,
-                    onLoaded: (composition) {
-                      _controller.duration = composition.duration;
-                    },
-                    fit: BoxFit.contain, // Ensures proper scaling
-                    alignment:
-                        Alignment.center, // Aligns the animation to the center
-                    repeat: false, // Play only once when tapped
-                  ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 300,
+                      height: 300,
+                      child: Lottie.asset(
+                        'lib/assets/flip-coin-animation.json',
+                        controller: _controller,
+                        onLoaded: (composition) {
+                          _controller.duration = composition.duration;
+                        },
+                        fit: BoxFit.contain,
+                        repeat: false,
+                      ),
+                    ),
+                    Positioned(
+                      top: 75, // Adjust this value to move the icon further up
+                      child: AnimatedOpacity(
+                        opacity: _showIcon
+                            ? 1.0
+                            : 0.0, // Control opacity based on _showIcon
+                        duration: const Duration(seconds: 1), // Fade duration
+                        child: Icon(
+                          _result == "Heads"
+                              ? Icons.person // Replace with Heads icon
+                              : Icons.attach_money, // Replace with Tails icon
+                          size: 100,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

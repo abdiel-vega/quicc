@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quicc/pages/flip_a_coin.dart';
+import 'package:quicc/pages/rock_paper_scissors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -110,7 +111,9 @@ class GameSelectionPage extends StatelessWidget {
                 onTap: () async {
                   await _saveGameData("Rock, Paper, Scissors", "Lost");
                   if (context.mounted) {
-                    Navigator.pop(context);
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const RockPaperScissors(),
+                    ));
                   }
                 },
               ),
